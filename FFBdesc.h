@@ -31,6 +31,8 @@
 #define HID_ID_BLKLDREP 0x02  // Usage Block Load Report
 #define HID_ID_POOLREP  0x03  // Usage PID Pool Report
 
+#define TLID   30
+
 #define HID_FFB_DESC_NULL(...)
 
 #define HID_FFB_DESC(...) \
@@ -38,7 +40,6 @@
   \
   0x09, 0x92,           /*   Usage (PID State report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_STATE+TLID, /*  Report ID 2 */ \
   0x09, 0x9F,           /*     Usage (Device is Pause) */ \
   0x09, 0xA0,           /*     Usage (Actuators Enabled) */ \
   0x09, 0xA4,           /*     Usage (Safety Switch) */ \
@@ -73,7 +74,6 @@
   \
   0x09, 0x21,           /*   Usage (Set Effect Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_EFFREP+TLID, /* Report ID 1 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -185,7 +185,6 @@
   \
   0x09, 0x5A,           /*   Usage (Set Envelope Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_ENVREP+TLID, /* Report ID 2 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -218,7 +217,6 @@
   \
   0x09, 0x5F,           /*   Usage (Set Condition Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_CONDREP+TLID,/* Report ID 3 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -274,7 +272,6 @@
   \
   0x09, 0x6E,           /*   Usage (Set Periodic Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_PRIDREP+TLID,/* Report ID 4 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -325,7 +322,6 @@
   \
   0x09, 0x73,           /*   Usage (Set Constant Force Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_CONSTREP+TLID,/* Report ID 5 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -346,7 +342,6 @@
   \
   0x09, 0x74,           /*   Usage (Set Ramp Force Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_RAMPREP+TLID,/* Report ID 6 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -368,7 +363,6 @@
   \
   0x09, 0x68,           /*   Usage (Custom Force Data Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_CSTMREP+TLID,/* Report ID 7 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -397,7 +391,6 @@
   \
   0x09, 0x66,           /*   Usage (Download Force Sample) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_SMPLREP+TLID,/* Report ID 8 */ \
   0x05, 0x01,           /*     Usage Page (Generic Desktop) */ \
   0x09, 0x30,           /*       Usage (X) */ \
   0x09, 0x31,           /*       Usage (Y) */ \
@@ -413,7 +406,6 @@
   0x05, 0x0F,           /*   Usage Page (Physical Interface) */ \
   0x09, 0x77,           /*   Usage (Effect Operation Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_EFOPREP+TLID,/* Report ID 10 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -443,7 +435,6 @@
   \
   0x09, 0x90,           /*   Usage (PID Block Free Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_BLKFRREP+TLID,/* Report ID 11 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -472,7 +463,6 @@
   \
   0x09, 0x7D,           /*   Usage (Device Gain Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_GAINREP+TLID,/* Report ID 13 */ \
   0x09, 0x7E,           /*     Usage (Device Gain) */ \
   0x15, 0x00,           /*      Logical Minimum (0) */ \
   0x26, 0xFF, 0x00,     /*      Logical Maximum (255) */ \
@@ -485,7 +475,6 @@
   \
   0x09, 0x6B,           /*   Usage (Set Custom Force Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_SETCREP+TLID,/* Report ID 14 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -518,7 +507,6 @@
   \
   0x09, 0xAB,           /*   Usage (Create New Effect Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_NEWEFREP+TLID,/* Report ID 1 */ \
   0x09, 0x25,           /*      Usage (Effect Type) */ \
   0xA1, 0x02,           /*      Collection Datalink (Logical) */ \
   0x09, HID_USAGE_CONST,/*        Usage (ET Constant Force) */ \
@@ -557,7 +545,6 @@
   0x05, 0x0F,           /*   Usage Page (Physical Interface) */ \
   0x09, 0x89,           /*   Usage (Block Load Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_BLKLDREP+TLID,/* Report ID 2 */ \
   0x09, 0x22,           /*     Usage (Effect Block Index) */ \
   0x15, 0x01,           /*      Logical Minimum (1) */ \
   0x25, 0x28,           /*      Logical Maximum (40) */ \
@@ -591,7 +578,6 @@
   \
   0x09, 0x7F,           /*   Usage (PID Pool Report) */ \
   0xA1, 0x02,           /*   Collection Datalink (Logical) */ \
-  0x85, HID_ID_POOLREP+TLID,/* Report ID 3 */ \
   0x09, 0x80,           /*     Usage (RAM Pool size) */ \
   0x75, 0x10,           /*      Report Size (16) */ \
   0x95, 0x01,           /*      Report Count (1) */ \
@@ -621,7 +607,7 @@
   0xC0,                 /*   End Collection Datalink (Logical) (OK) */ 
 
 
-#define HID_SIMPLE_REPORT_DESCRIPTOR(...) \
+#define HID_JOY_REPORT_DESCRIPTOR(...) \
   0x05, 0x01,           /* Usage Page (Generic Desktop) */ \
   0x09, 0x04,           /* Usage (Joystick) */ \
   0xA1, 0x01,           /* Collection (Application) */ \

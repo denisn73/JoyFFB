@@ -1,6 +1,7 @@
 #include "HIDjoy.h" 
 
 void HID_Joystick::begin(void){
+    HID.addOutputBuffer(&Data);
 }
 
 void HID_Joystick::end(void){
