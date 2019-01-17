@@ -55,18 +55,20 @@ void loop()
 
   static uint32_t lastDataMillis = 0;
   if(millis()-lastDataMillis >= 500) {
-    CompositeSerial.println("--- OUTPUT -----------------");
-    joy.printBufSetEffect();
-    joy.printBufSetEnvelope();
-    joy.printBufSetCondition();
-    joy.printBufSetPeriodic();
-    joy.printBufSetConstantForce();
-    joy.printBufSetRampForce();
-    CompositeSerial.println("--- FEATURE ----------------");
-    joy.printBufNewEffect();
-    joy.printBufBlockLoad();
-    joy.printBufPoolPID();
-    CompositeSerial.println();
+//    CompositeSerial.println("--- OUTPUT -----------------");
+//    joy.printBufDeviceControl();
+//    joy.printBufDeviceGain();
+//    joy.printBufSetEffect();
+//    joy.printBufSetEnvelope();
+//    joy.printBufSetCondition();
+//    joy.printBufSetPeriodic();
+//    joy.printBufSetConstantForce();
+//    joy.printBufSetRampForce();
+//    CompositeSerial.println("--- FEATURE ----------------");
+//    joy.printBufNewEffect();
+//    joy.printBufBlockLoad();
+//    joy.printBufPoolPID();
+//    CompositeSerial.println();
     lastDataMillis = millis();
     
   }

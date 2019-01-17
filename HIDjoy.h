@@ -34,6 +34,11 @@ typedef struct {
     uint8_t  reportID;
 } __packed ReportEffect_t;
 
+typedef struct {
+    uint8_t  reportID;
+    uint8_t  data[4];
+} __packed ReportFeature_t;
+
 class HID_Joystick {
   
   protected :
@@ -52,8 +57,8 @@ class HID_Joystick {
     ReportStatePID_t  reportStatePID;
     
     ReportEffect_t    reportEffect;
-    ReportEffect_t    reportPool;
     ReportEffect_t    reportLoad;
+    ReportFeature_t   reportPool;
 
     // OUTPUT
     HIDBuffer_t       dataSetEffect;
@@ -62,6 +67,8 @@ class HID_Joystick {
     HIDBuffer_t       dataSetPeriodic;
     HIDBuffer_t       dataSetConstantForce;
     HIDBuffer_t       dataSetRampForce;
+    HIDBuffer_t       dataDeviceControl;
+    HIDBuffer_t       dataDeviceGain;
 
     // FEATURE
     HIDBuffer_t       dataNewEffect;
@@ -74,6 +81,8 @@ class HID_Joystick {
     volatile uint8_t bufSetPeriodic[HID_BUFFER_ALLOCATE_SIZE(SIZE_PRIDREP,1)]       = {0};
     volatile uint8_t bufSetConstantForce[HID_BUFFER_ALLOCATE_SIZE(SIZE_CONSTREP,1)] = {0};
     volatile uint8_t bufSetRampForce[HID_BUFFER_ALLOCATE_SIZE(SIZE_RAMPREP,1)]      = {0};
+    volatile uint8_t bufDeviceControl[HID_BUFFER_ALLOCATE_SIZE(SIZE_CTRLREP,1)]     = {0};
+    volatile uint8_t bufDeviceGain[HID_BUFFER_ALLOCATE_SIZE(SIZE_GAINREP,1)]     = {0};
     
     volatile uint8_t bufNewEffect[HID_BUFFER_ALLOCATE_SIZE(SIZE_NEWEFREP,1)];
     volatile uint8_t bufBlockLoad[HID_BUFFER_ALLOCATE_SIZE(SIZE_BLKLDREP,1)];
@@ -140,6 +149,16 @@ class HID_Joystick {
       this->printBuf(bufSetRampForce, sizeof(bufSetRampForce));
     }
     
+    uint8_t printBufDeviceControl() {
+      CompositeSerial.print("[Buf] DeviceCtrl:  \t");
+      this->printBuf(bufDeviceControl, sizeof(bufDeviceControl));
+    }
+    
+    uint8_t printBufDeviceGain() {
+      CompositeSerial.print("[Buf] DeviceGain:  \t");
+      this->printBuf(bufDeviceGain, sizeof(bufDeviceGain));
+    }
+    
     uint8_t printBufNewEffect() {
       CompositeSerial.print("[Buf] New Effect:\t");
       this->printBuf(bufNewEffect, sizeof(bufNewEffect));
@@ -160,14 +179,16 @@ class HID_Joystick {
       reporterJoy     (*_HID, (uint8_t*)&reportJoy,      sizeof(reportJoy),       TLID),
       reporterStatePID(*_HID, (uint8_t*)&reportStatePID, sizeof(reportStatePID),  TLID+HID_ID_STATE),
       reporterEffect  (*_HID, (uint8_t*)&reportEffect,   sizeof(reportEffect),    TLID+HID_ID_NEWEFREP),
-      reporterPool    (*_HID, (uint8_t*)&reportPool,     sizeof(reportPool),      TLID+HID_ID_BLKLDREP),
-      reporterLoad    (*_HID, (uint8_t*)&reportLoad,     sizeof(reportLoad),      TLID+HID_ID_POOLREP),
+      reporterLoad    (*_HID, (uint8_t*)&reportLoad,     sizeof(reportLoad),      TLID+HID_ID_BLKLDREP),
+      reporterPool    (*_HID, (uint8_t*)&reportPool,     sizeof(reportPool),      TLID+HID_ID_POOLREP),
       dataSetEffect       (bufSetEffect,        HID_BUFFER_SIZE(SIZE_EFFREP,1),   TLID+HID_ID_EFFREP,   HID_BUFFER_MODE_NO_WAIT),
       dataSetEnvelope     (bufSetEnvelope,      HID_BUFFER_SIZE(SIZE_ENVREP,1),   TLID+HID_ID_ENVREP,   HID_BUFFER_MODE_NO_WAIT),
       dataSetCondition    (bufSetCondition,     HID_BUFFER_SIZE(SIZE_CONDREP,1),  TLID+HID_ID_CONDREP,  HID_BUFFER_MODE_NO_WAIT),
       dataSetPeriodic     (bufSetPeriodic,      HID_BUFFER_SIZE(SIZE_PRIDREP,1),  TLID+HID_ID_PRIDREP,  HID_BUFFER_MODE_NO_WAIT),
       dataSetConstantForce(bufSetConstantForce, HID_BUFFER_SIZE(SIZE_CONSTREP,1), TLID+HID_ID_CONSTREP, HID_BUFFER_MODE_NO_WAIT),
       dataSetRampForce    (bufSetRampForce,     HID_BUFFER_SIZE(SIZE_RAMPREP,1),  TLID+HID_ID_RAMPREP,  HID_BUFFER_MODE_NO_WAIT),
+      dataDeviceControl   (bufDeviceControl,    HID_BUFFER_SIZE(SIZE_CTRLREP,1),  TLID+HID_ID_CTRLREP,  HID_BUFFER_MODE_NO_WAIT),
+      dataDeviceGain      (bufDeviceGain,       HID_BUFFER_SIZE(SIZE_GAINREP,1),  TLID+HID_ID_GAINREP,  HID_BUFFER_MODE_NO_WAIT),
       dataNewEffect (bufNewEffect, HID_BUFFER_SIZE(SIZE_NEWEFREP,1), TLID+HID_ID_NEWEFREP, HID_BUFFER_MODE_NO_WAIT),
       dataBlockLoad (bufBlockLoad, HID_BUFFER_SIZE(SIZE_BLKLDREP,1), TLID+HID_ID_BLKLDREP, HID_BUFFER_MODE_NO_WAIT),
       dataPoolPID   (bufPoolPID,   HID_BUFFER_SIZE(SIZE_POOLREP,1),  TLID+HID_ID_POOLREP,  HID_BUFFER_MODE_NO_WAIT)
@@ -204,11 +225,15 @@ class HID_Joystick {
         HID->addOutputBuffer(&dataSetCondition);
         HID->addOutputBuffer(&dataSetPeriodic);
         HID->addOutputBuffer(&dataSetConstantForce);
-        HID->addOutputBuffer(&dataSetRampForce);   
+        HID->addOutputBuffer(&dataSetRampForce);
+        HID->addOutputBuffer(&dataDeviceControl);
+        HID->addOutputBuffer(&dataDeviceGain);
         // add FEATURE buffers
         HID->addFeatureBuffer(&dataNewEffect);
         HID->addFeatureBuffer(&dataBlockLoad);
         HID->addFeatureBuffer(&dataPoolPID);
+        //
+        reporterPool.sendReport();
       }
       
       void end(void) {}
@@ -232,8 +257,6 @@ class HID_Joystick {
             CompositeSerial.print(value);
             CompositeSerial.println(")");
           }
-          bufNewEffect[1] = 12;
-          reporterEffect.setFeature((uint8_t*)&bufNewEffect);
           
           if(reporterPool.getFeature(&value)) {
             CompositeSerial.println("reporterPool");
