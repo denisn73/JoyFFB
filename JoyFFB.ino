@@ -9,7 +9,7 @@ const uint8_t reportDescription[] = {
 USBCompositeSerial CompositeSerial;
 USBHID             HID;
 
-HID_Joystick       joystick(HID);
+HID_Joystick       joy(&HID);
 
 #define RXSIZE 300
 uint8 buf[RXSIZE];
@@ -18,8 +18,8 @@ void setup()
 {
   
   HID.begin(CompositeSerial, reportDescription, sizeof(reportDescription));
-  joystick.begin();
-  joystick.setManualReportMode(true);
+  joy.begin();
+  joy.setManualReportMode(true);
   pinMode(PC13, OUTPUT);
   
 }
@@ -34,7 +34,7 @@ void loop()
     //
     static uint8_t btnNum = 0;
     static bool    btnState[8];
-    joystick.button(btnNum+1, btnState[btnNum]);
+    joy.button(btnNum+1, btnState[btnNum]);
     btnState[btnNum] = !btnState[btnNum];
     if(++btnNum>=sizeof(btnState)) btnNum = 0;
     //
@@ -44,7 +44,7 @@ void loop()
   
   if(joyChanged) {
     joyChanged = false;
-    joystick.send();
+    joy.send();
   }
 
   static uint32_t lastLedMillis = 0;
@@ -55,13 +55,23 @@ void loop()
 
   static uint32_t lastDataMillis = 0;
   if(millis()-lastDataMillis >= 500) {
-    for(uint8_t i=0; i<100; i++) {
-      CompositeSerial.print(joystick.getBufData(i), HEX);
-      CompositeSerial.print(" ");
-    }
-    CompositeSerial.println("");
+    CompositeSerial.println("--- OUTPUT -----------------");
+    joy.printBufSetEffect();
+    joy.printBufSetEnvelope();
+    joy.printBufSetCondition();
+    joy.printBufSetPeriodic();
+    joy.printBufSetConstantForce();
+    joy.printBufSetRampForce();
+    CompositeSerial.println("--- FEATURE ----------------");
+    joy.printBufNewEffect();
+    joy.printBufBlockLoad();
+    joy.printBufPoolPID();
+    CompositeSerial.println();
     lastDataMillis = millis();
+    
   }
+  
+  joy.test();
   
 }
 

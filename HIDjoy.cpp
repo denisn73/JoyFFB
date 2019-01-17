@@ -1,83 +1,55 @@
 #include "HIDjoy.h" 
 
-void HID_Joystick::begin(void){
-    HID.addOutputBuffer(&Data);
-}
-
-void HID_Joystick::end(void){
-}
-
-void HID_Joystick::setManualReportMode(bool mode) {
-    manualReport = mode;
-}
-
-bool HID_Joystick::getManualReportMode() {
-    return manualReport;
-}
-
-void HID_Joystick::safeSendReport() {  
-    if(!manualReport) sendReport();
-}
-
 void HID_Joystick::button(uint8_t button, bool val){
     uint32_t mask = ((uint32_t)1 << (button-1));
-    if (val) report.buttons |= mask;
-    else     report.buttons &= ~mask;
-    safeSendReport();
+    if (val) reportJoy.buttons |= mask;
+    else     reportJoy.buttons &= ~mask;
+    safeSendReportJoy();
 }
 
-void HID_Joystick::steering(uint8_t val){
-    if(val > 255) val = 255;
-    report.steering = val;
-    safeSendReport();
+void HID_Joystick::steering(uint8_t val) {
+    reportJoy.steering = val;
+    safeSendReportJoy();
 }
 
 void HID_Joystick::throttle(uint8_t val) {
-    if(val > 255) val = 255;
-    report.throttle = val;
-    safeSendReport();
+    reportJoy.throttle = val;
+    safeSendReportJoy();
 }
 
 void HID_Joystick::accelerator(uint8_t val) {
-    if(val > 255) val = 255;
-    report.accelerator = val;
-    safeSendReport();
+    reportJoy.accelerator = val;
+    safeSendReportJoy();
 }
 
 void HID_Joystick::brake(uint8_t val) {
-    if(val > 255) val = 255;
-    report.brake = val;
-    safeSendReport();
+    reportJoy.brake = val;
+    safeSendReportJoy();
 }
 
 void HID_Joystick::shifter(uint8_t val) {
-    if(val > 255) val = 255;
-    report.shifter = val;
-    safeSendReport();
+    reportJoy.shifter = val;
+    safeSendReportJoy();
 }
 
 void HID_Joystick::sliderLeft(uint16_t val) {
-    if(val > 65535) val = 65535;
-    report.sliderLeft = val; 
-    safeSendReport();
+    reportJoy.sliderLeft = val; 
+    safeSendReportJoy();
 }
 
 void HID_Joystick::sliderRight(uint16_t val) {
-    if(val > 65535) val = 65535;
-    report.sliderRight = val;  
-    safeSendReport();
+    reportJoy.sliderRight = val;  
+    safeSendReportJoy();
 }
 
 void HID_Joystick::Xrotate(uint16_t val) {
-    if(val > 65535) val = 65535;
-    report.rx = val;
-    safeSendReport();
+    reportJoy.rx = val;
+    safeSendReportJoy();
 }
 
 void HID_Joystick::Yrotate(uint16_t val) {
-    if(val > 65535) val = 65535;
-    report.ry = val;
-    safeSendReport();
+    reportJoy.ry = val;
+    safeSendReportJoy();
 }
 
 void HID_Joystick::hat(uint8_t num, int16_t dir) {
@@ -93,12 +65,12 @@ void HID_Joystick::hat(uint8_t num, int16_t dir) {
   else if (dir < 338) val = 7;
   else val = 15;
   if(num) {
-    report.hat &= 0x0F;
-    report.hat |= (val << 4);
+    reportJoy.hat &= 0x0F;
+    reportJoy.hat |= (val << 4);
   } else {
-    report.hat &= 0xF0;
-    report.hat |= val;
+    reportJoy.hat &= 0xF0;
+    reportJoy.hat |= val;
   }
-  safeSendReport();
+  safeSendReportJoy();
 }
 
