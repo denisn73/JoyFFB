@@ -11,9 +11,6 @@ USBHID             HID;
 
 HID_Joystick       joy(&HID);
 
-#define RXSIZE 300
-uint8 buf[RXSIZE];
-
 void setup()
 {
   

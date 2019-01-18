@@ -1,6 +1,7 @@
 #include <USBComposite.h>
 
 #include "FFBdesc.h"
+#include "FFBenum.h"
 
 typedef struct {
     uint8_t  reportID;
@@ -18,26 +19,8 @@ typedef struct {
     uint8_t  shifter;     // переключатель
 } __packed ReportJoy_t;
 
-typedef struct {
-    uint8_t  reportID;
-    uint8_t  deviceIsPaused         : 1; // 
-    uint8_t  actuatorEnabled        : 1; // 
-    uint8_t  safetySwitch           : 1; // 
-    uint8_t  actuatorOverrideSwitch : 1; // 
-    uint8_t  actuatorPower          : 1; // 
-    uint8_t  padding                : 3; // 
-    uint8_t  effectPlaying          : 1; // 
-    uint8_t  effectBlockIndex       : 7; // 
-} __packed ReportStatePID_t;
 
-typedef struct {
-    uint8_t  reportID;
-} __packed ReportEffect_t;
-
-typedef struct {
-    uint8_t  reportID;
-    uint8_t  data[4];
-} __packed ReportFeature_t;
+// =====================================================================
 
 class HID_Joystick {
   
@@ -48,17 +31,18 @@ class HID_Joystick {
     HIDReporter       reporterJoy;
     HIDReporter       reporterStatePID;
     
-    HIDReporter       reporterEffect;
-    HIDReporter       reporterPool;
-    HIDReporter       reporterLoad;
+    HIDReporter       reporterNewEffect;
+    HIDReporter       reporterPoolPID;
+    HIDReporter       reporterLoadPID;
 
     // INPUT
     ReportJoy_t       reportJoy;
     ReportStatePID_t  reportStatePID;
-    
-    ReportEffect_t    reportEffect;
-    ReportEffect_t    reportLoad;
-    ReportFeature_t   reportPool;
+
+    // FEATURE
+    ReportNewEffect_t reportNewEffect;
+    ReportLoadPID_t   reportLoadPID;
+    ReportPoolPID_t   reportPoolPID;
 
     // OUTPUT
     HIDBuffer_t       dataSetEffect;
@@ -82,7 +66,7 @@ class HID_Joystick {
     volatile uint8_t bufSetConstantForce[HID_BUFFER_ALLOCATE_SIZE(SIZE_CONSTREP,1)] = {0};
     volatile uint8_t bufSetRampForce[HID_BUFFER_ALLOCATE_SIZE(SIZE_RAMPREP,1)]      = {0};
     volatile uint8_t bufDeviceControl[HID_BUFFER_ALLOCATE_SIZE(SIZE_CTRLREP,1)]     = {0};
-    volatile uint8_t bufDeviceGain[HID_BUFFER_ALLOCATE_SIZE(SIZE_GAINREP,1)]     = {0};
+    volatile uint8_t bufDeviceGain[HID_BUFFER_ALLOCATE_SIZE(SIZE_GAINREP,1)]        = {0};
     
     volatile uint8_t bufNewEffect[HID_BUFFER_ALLOCATE_SIZE(SIZE_NEWEFREP,1)];
     volatile uint8_t bufBlockLoad[HID_BUFFER_ALLOCATE_SIZE(SIZE_BLKLDREP,1)];
@@ -176,11 +160,14 @@ class HID_Joystick {
     
     HID_Joystick(USBHID* _HID) : 
       HID(_HID),
-      reporterJoy     (*_HID, (uint8_t*)&reportJoy,      sizeof(reportJoy),       TLID),
-      reporterStatePID(*_HID, (uint8_t*)&reportStatePID, sizeof(reportStatePID),  TLID+HID_ID_STATE),
-      reporterEffect  (*_HID, (uint8_t*)&reportEffect,   sizeof(reportEffect),    TLID+HID_ID_NEWEFREP),
-      reporterLoad    (*_HID, (uint8_t*)&reportLoad,     sizeof(reportLoad),      TLID+HID_ID_BLKLDREP),
-      reporterPool    (*_HID, (uint8_t*)&reportPool,     sizeof(reportPool),      TLID+HID_ID_POOLREP),
+      // INPUT reporters
+      reporterJoy     (*_HID, (uint8_t*)&reportJoy,       sizeof(reportJoy),       TLID),
+      reporterStatePID(*_HID, (uint8_t*)&reportStatePID,  sizeof(reportStatePID),  TLID+HID_ID_STATE),
+      // FEATURE reporters
+      reporterNewEffect(*_HID, (uint8_t*)&reportNewEffect, sizeof(reportNewEffect), TLID+HID_ID_NEWEFREP),
+      reporterLoadPID  (*_HID, (uint8_t*)&reportLoadPID,   sizeof(reportLoadPID),   TLID+HID_ID_BLKLDREP),
+      reporterPoolPID  (*_HID, (uint8_t*)&reportPoolPID,   sizeof(reportPoolPID),   TLID+HID_ID_POOLREP),
+      // OUTPUT buffers
       dataSetEffect       (bufSetEffect,        HID_BUFFER_SIZE(SIZE_EFFREP,1),   TLID+HID_ID_EFFREP,   HID_BUFFER_MODE_NO_WAIT),
       dataSetEnvelope     (bufSetEnvelope,      HID_BUFFER_SIZE(SIZE_ENVREP,1),   TLID+HID_ID_ENVREP,   HID_BUFFER_MODE_NO_WAIT),
       dataSetCondition    (bufSetCondition,     HID_BUFFER_SIZE(SIZE_CONDREP,1),  TLID+HID_ID_CONDREP,  HID_BUFFER_MODE_NO_WAIT),
@@ -189,6 +176,7 @@ class HID_Joystick {
       dataSetRampForce    (bufSetRampForce,     HID_BUFFER_SIZE(SIZE_RAMPREP,1),  TLID+HID_ID_RAMPREP,  HID_BUFFER_MODE_NO_WAIT),
       dataDeviceControl   (bufDeviceControl,    HID_BUFFER_SIZE(SIZE_CTRLREP,1),  TLID+HID_ID_CTRLREP,  HID_BUFFER_MODE_NO_WAIT),
       dataDeviceGain      (bufDeviceGain,       HID_BUFFER_SIZE(SIZE_GAINREP,1),  TLID+HID_ID_GAINREP,  HID_BUFFER_MODE_NO_WAIT),
+      // FEATURE buffers
       dataNewEffect (bufNewEffect, HID_BUFFER_SIZE(SIZE_NEWEFREP,1), TLID+HID_ID_NEWEFREP, HID_BUFFER_MODE_NO_WAIT),
       dataBlockLoad (bufBlockLoad, HID_BUFFER_SIZE(SIZE_BLKLDREP,1), TLID+HID_ID_BLKLDREP, HID_BUFFER_MODE_NO_WAIT),
       dataPoolPID   (bufPoolPID,   HID_BUFFER_SIZE(SIZE_POOLREP,1),  TLID+HID_ID_POOLREP,  HID_BUFFER_MODE_NO_WAIT)
@@ -232,8 +220,6 @@ class HID_Joystick {
         HID->addFeatureBuffer(&dataNewEffect);
         HID->addFeatureBuffer(&dataBlockLoad);
         HID->addFeatureBuffer(&dataPoolPID);
-        //
-        reporterPool.sendReport();
       }
       
       void end(void) {}
@@ -251,26 +237,37 @@ class HID_Joystick {
       }
 
       void test() {
+        
           uint8_t value;
-          if(reporterEffect.getFeature(&value)) {
+          
+          if(reporterNewEffect.getFeature((uint8_t*)&reportNewEffect)) {
             CompositeSerial.print("getFature(");
             CompositeSerial.print(value);
             CompositeSerial.println(")");
           }
           
-          if(reporterPool.getFeature(&value)) {
+          if(reporterPoolPID.getFeature((uint8_t*)&reportPoolPID)) {
             CompositeSerial.println("reporterPool");
-            reporterPool.setFeature((uint8_t*)&bufNewEffect);
           }
           
-          if(reporterLoad.getFeature(&value)) {
+          if(reporterLoadPID.getFeature(&value)) {
             CompositeSerial.println("reporterLoad");
-            reporterLoad.setFeature((uint8_t*)&bufNewEffect);
+            reporterLoadPID.setFeature((uint8_t*)&bufNewEffect);
           }
 
           if(reporterJoy.getOutput(&value)) {
             CompositeSerial.println("reporterJoy");
           }
+
+          reportPoolPID.ramPoolSize             = 0xFFFF;
+          reportPoolPID.maxSimultaneousEffects  = 0x0A; // FFP supports playing up to 10 simultaneous effects
+          reportPoolPID.memoryManagement        = 3;
+          reporterPoolPID.setFeature((uint8_t*)&reportPoolPID);
+          reporterPoolPID.sendReport();
+
+          reportNewEffect.effectType = FFB_EFFECT_CONSTANT;
+          reporterNewEffect.setFeature((uint8_t*)&reportNewEffect);
+          reporterNewEffect.sendReport();
                     
       }
 

@@ -643,7 +643,6 @@
   0xB1, 0x03,           /*      Feature (Constant, Variable) */ \
   0xC0,                 /*   End Collection Datalink (Logical) (OK) */ 
 
-
 #define HID_JOY_REPORT_DESCRIPTOR(...) \
   0x05, 0x01,           /* Usage Page (Generic Desktop) */ \
   0x09, 0x04,           /* Usage (Joystick) */ \
