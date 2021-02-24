@@ -34,26 +34,6 @@
 #define HID_ID_BLKLDREP 0x02  // Usage Block Load Report
 #define HID_ID_POOLREP  0x03  // Usage PID Pool Report
 
-// OUTPUT data size
-#define SIZE_EFFREP       17
-#define SIZE_ENVREP        7
-#define SIZE_CONDREP      12
-#define SIZE_PRIDREP       9
-#define SIZE_CONSTREP      3
-#define SIZE_RAMPREP       3
-#define SIZE_CSTMREP      15
-#define SIZE_SMPLREP       2
-#define SIZE_EFOPREP       3
-#define SIZE_BLKFRREP      1
-#define SIZE_CTRLREP       1
-#define SIZE_GAINREP       1
-#define SIZE_SETCREP       4
-
-// FEATURE data size
-#define SIZE_NEWEFREP      3
-#define SIZE_BLKLDREP      4
-#define SIZE_POOLREP       4
-
 #define HID_FFB_DESC_NULL(...)
 
 #define HID_FFB_DESC(...) \
@@ -619,8 +599,8 @@
   0x75, 0x10,           /*      Report Size (16) */ \
   0x95, 0x01,           /*      Report Count (1) */ \
   0x15, 0x00,           /*      Logical Minimum (0) */ \
-  0x27, 0xFF, 0xFF,0,0, /*      Logical Maximum (65535) */ \
   0x35, 0x00,           /*      Physical Minimum (0) */ \
+  0x27, 0xFF, 0xFF,0,0, /*      Logical Maximum (65535) */ \
   0x47, 0xFF, 0xFF,0,0, /*      Physical Maximum (65535) */ \
   0xB1, 0x02,           /*      Feature (Variable) */ \
   0x09, 0x83,           /*     Usage (Simultaneous Effects Max) */ \

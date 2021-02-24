@@ -41,7 +41,7 @@ void loop()
   
   if(joyChanged) {
     joyChanged = false;
-    joy.send();
+    //joy.send();
   }
 
   static uint32_t lastLedMillis = 0;
